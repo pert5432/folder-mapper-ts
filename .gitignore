@@ -81,3 +81,5 @@ test.env
 
 # MAC OS
 .DS_Store
+
+assets
