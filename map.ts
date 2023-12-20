@@ -1,17 +1,6 @@
 export const MAP = {
-  jebeti: {
-    je: {
-      toto: {
-        normalne: {
-          "unlucky.joaha":
-            "/Users/petrkada/development/folder-map/assets/jebeti/je/toto/normalne/unlucky.joaha",
-        },
-      },
-    },
+  JO_AHA_JEBETI: {
+    "JE_TOTO_NORMALNE?_JEBETI?":
+      "/Users/petrkada/development/folder-map/assets/jo AhA jeBetI/je toto normalne? jebeti?",
   },
-  "b.txt": "/Users/petrkada/development/folder-map/assets/b.txt",
-  ass: {
-    "ets.txt": "/Users/petrkada/development/folder-map/assets/ass/ets.txt",
-  },
-  "a.txt": "/Users/petrkada/development/folder-map/assets/a.txt",
 };

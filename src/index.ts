@@ -8,7 +8,13 @@ const INPUT_PATH = `${ROOT_DIR}/assets`;
 const OUTPUT_PATH = `${ROOT_DIR}/map.ts`;
 
 const main = async () => {
-  const map = new FolderMap(INPUT_PATH);
+  const map = new FolderMap({
+    path: INPUT_PATH,
+    filenameFormatter: (filename: string) =>
+      filename.split(" ").join("_").toUpperCase(),
+    dirnameFormatter: (dirname: string) =>
+      dirname.split(" ").join("_").toUpperCase(),
+  });
 
   await mapFolder(map, INPUT_PATH);
 
@@ -19,12 +25,12 @@ const main = async () => {
 };
 
 const mapFolder = async (map: FolderMap, absolutePath: string) => {
-  let queue: QueueElement[] = (await readDirByAbsolutePath(absolutePath)).map(
-    (entry) => ({
-      relativePath: path.join("/", entry.name),
-      entry,
-    })
-  );
+  let queue: QueueElement[] = (
+    await getDirContentsByAbsolutePath(absolutePath)
+  ).map((entry) => ({
+    relativePath: path.join("/", entry.name),
+    entry,
+  }));
 
   let currentEntry = queue.pop();
   while (currentEntry) {
@@ -36,7 +42,7 @@ const mapFolder = async (map: FolderMap, absolutePath: string) => {
         currentEntry.entry.name
       );
 
-      const targetDirContents = await readDirByAbsolutePath(
+      const targetDirContents = await getDirContentsByAbsolutePath(
         path.join(absolutePath, targetDirRelativePath)
       );
 
@@ -52,7 +58,7 @@ const mapFolder = async (map: FolderMap, absolutePath: string) => {
   }
 };
 
-const readDirByAbsolutePath = async (
+const getDirContentsByAbsolutePath = async (
   absolutePath: string
 ): Promise<fs.Dirent[]> =>
   new Promise((resolve, reject) => {

@@ -1,15 +1,28 @@
-import { Folder } from "./types";
+import {
+  DirnameFormatter,
+  FilenameFormatter,
+  Folder,
+  MapConfig,
+} from "./types";
 import path from "node:path";
+
+const DEFAULT_FILENAME_FORMATTER: FilenameFormatter = (filename: string) =>
+  filename;
+
+const DEFAULT_DIRNAME_FORMATTER: DirnameFormatter = (dirname: string) =>
+  dirname;
 
 export class FolderMap {
   private _map: Folder = {};
   private rootPath: string;
 
-  private currentPath = "/";
-  private currentFolder = this._map;
+  private filenameFormatter: FilenameFormatter;
+  private dirnameFormatter: DirnameFormatter;
 
-  constructor(rootPath: string) {
-    this.rootPath = rootPath;
+  constructor({ path, filenameFormatter, dirnameFormatter }: MapConfig) {
+    this.rootPath = path;
+    this.filenameFormatter = filenameFormatter ?? DEFAULT_FILENAME_FORMATTER;
+    this.dirnameFormatter = dirnameFormatter ?? DEFAULT_DIRNAME_FORMATTER;
   }
 
   get map() {
@@ -19,28 +32,10 @@ export class FolderMap {
   insertByRelativePath(relativePath: string): void {
     const folder = this.getFolderByRelativePath(relativePath, true);
 
-    folder[path.basename(relativePath)] = path.join(
+    folder[this.filenameFormatter(path.basename(relativePath))] = path.join(
       this.rootPath,
       relativePath
     );
-  }
-
-  insert(filename: string): void {
-    this.currentFolder[filename] = path.join(this.currentPath, filename);
-  }
-
-  cd(target: string): void {
-    if (target === "..") {
-      const destination = path.resolve(path.join(this.currentPath, target));
-
-      this.currentFolder = this.getFolderByRelativePath(destination);
-      this.currentPath = destination;
-    } else {
-      this.currentFolder = this.getFolderByRelativePath(
-        path.join(this.currentPath, target)
-      );
-      this.currentPath = path.join(this.currentPath, target);
-    }
   }
 
   private getFolderByRelativePath(
@@ -55,16 +50,18 @@ export class FolderMap {
 
     let currentFolder = this._map;
     for (const key of folders) {
-      if (!currentFolder[key]) {
+      const formattedKey = this.dirnameFormatter(key);
+
+      if (!currentFolder[formattedKey]) {
         if (!insert) {
           console.log(folders);
           throw new Error(`Invalid path - ${relativePath}`);
         } else {
-          currentFolder[key] = {};
+          currentFolder[formattedKey] = {};
         }
       }
 
-      currentFolder = currentFolder[key] as Folder;
+      currentFolder = currentFolder[formattedKey] as Folder;
     }
 
     return currentFolder;
