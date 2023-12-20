@@ -5,6 +5,7 @@ import path from "node:path";
 import { FolderMap } from "./folder-map";
 
 const INPUT_PATH = `${ROOT_DIR}/assets`;
+const OUTPUT_PATH = `${ROOT_DIR}/map.ts`;
 
 const readDirByRelativePath = async (
   relativePath: string
@@ -59,7 +60,10 @@ const main = async () => {
     entry = queue.pop();
   }
 
-  console.log(map);
+  fs.writeFileSync(
+    OUTPUT_PATH,
+    `export const MAP = ${JSON.stringify(map.map)}`
+  );
 };
 
 main()

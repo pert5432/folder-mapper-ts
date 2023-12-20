@@ -2,14 +2,18 @@ import { Folder } from "./types";
 import path from "node:path";
 
 export class FolderMap {
-  private map: Folder = {};
+  private _map: Folder = {};
   private rootPath: string;
 
   private currentPath = "/";
-  private currentFolder = this.map;
+  private currentFolder = this._map;
 
   constructor(rootPath: string) {
     this.rootPath = rootPath;
+  }
+
+  get map() {
+    return this._map;
   }
 
   insertByRelativePath(relativePath: string): void {
@@ -44,12 +48,12 @@ export class FolderMap {
     insert = false
   ): Folder {
     if (path.dirname(relativePath) === "/") {
-      return this.map;
+      return this._map;
     }
 
     const folders = path.dirname(relativePath).split("/").slice(1);
 
-    let currentFolder = this.map;
+    let currentFolder = this._map;
     for (const key of folders) {
       if (!currentFolder[key]) {
         if (!insert) {
