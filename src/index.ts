@@ -1,13 +1,14 @@
 import * as fs from "fs";
 import { ROOT_DIR } from "./root";
-import { QueueElement } from "./types";
+import { FolderQueueElement } from "./types";
 import path from "node:path";
 import { FolderMap } from "./folder-map";
+import { getDirContentsByAbsolutePath } from "./get-dir-contents";
 
 const INPUT_PATH = `${ROOT_DIR}/assets`;
 const OUTPUT_PATH = `${ROOT_DIR}/map.ts`;
 
-const main = async () => {
+const main = async (): Promise<void> => {
   const map = new FolderMap({
     path: INPUT_PATH,
     filenameFormatter: (filename: string) =>
@@ -18,62 +19,46 @@ const main = async () => {
 
   await mapFolder(map, INPUT_PATH);
 
-  fs.writeFileSync(
+  fs.writeFile(
     OUTPUT_PATH,
-    `export const MAP = ${JSON.stringify(map.map)}`
+    `export const MAP = ${JSON.stringify(map.map)}`,
+    { encoding: "utf-8" },
+    (e) => {
+      if (e) throw e;
+    }
   );
 };
 
-const mapFolder = async (map: FolderMap, absolutePath: string) => {
-  let queue: QueueElement[] = (
-    await getDirContentsByAbsolutePath(absolutePath)
-  ).map((entry) => ({
-    relativePath: path.join("/", entry.name),
-    entry,
-  }));
+const mapFolder = async (
+  map: FolderMap,
+  absolutePath: string
+): Promise<void> => {
+  const folderQueue: FolderQueueElement[] = [
+    { relativePath: "/", name: path.dirname(absolutePath) },
+  ];
 
-  let currentEntry = queue.pop();
-  while (currentEntry) {
-    if (currentEntry.entry.isFile()) {
-      map.insertByRelativePath(currentEntry.relativePath);
-    } else if (currentEntry.entry.isDirectory()) {
-      const targetDirRelativePath = path.join(
-        path.dirname(currentEntry.relativePath),
-        currentEntry.entry.name
-      );
+  let currentElement = folderQueue.pop();
+  while (currentElement) {
+    const dirContents = await getDirContentsByAbsolutePath(
+      path.join(absolutePath, currentElement.relativePath)
+    );
 
-      const targetDirContents = await getDirContentsByAbsolutePath(
-        path.join(absolutePath, targetDirRelativePath)
-      );
-
-      queue.push(
-        ...targetDirContents.map((entry) => ({
-          entry,
-          relativePath: path.join(targetDirRelativePath, entry.name),
-        }))
-      );
+    for (const entry of dirContents) {
+      if (entry.isFile()) {
+        map.insertByRelativePath(
+          path.join(currentElement.relativePath, entry.name)
+        );
+      } else if (entry.isDirectory()) {
+        folderQueue.push({
+          name: entry.name,
+          relativePath: path.join(currentElement.relativePath, entry.name),
+        });
+      }
     }
 
-    currentEntry = queue.pop();
+    currentElement = folderQueue.pop();
   }
 };
-
-const getDirContentsByAbsolutePath = async (
-  absolutePath: string
-): Promise<fs.Dirent[]> =>
-  new Promise((resolve, reject) => {
-    fs.readdir(
-      absolutePath,
-      { encoding: "utf-8", withFileTypes: true },
-      (e: NodeJS.ErrnoException | null, files: fs.Dirent[]) => {
-        if (e) {
-          reject(e);
-        } else {
-          resolve(files);
-        }
-      }
-    );
-  });
 
 main()
   .then(() => console.log("okaaaa"))

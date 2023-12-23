@@ -2,7 +2,7 @@ import * as fs from "fs";
 
 export type Folder = { [key: string]: string | Folder };
 
-export type QueueElement = { entry: fs.Dirent; relativePath: string };
+export type FolderQueueElement = { name: string; relativePath: string };
 
 export type FilenameFormatter = (filename: string) => string;
 
