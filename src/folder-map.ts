@@ -29,8 +29,8 @@ export class FolderMap {
     return this._map;
   }
 
-  insertByRelativePath(relativePath: string): void {
-    const folder = this.getFolderByRelativePath(relativePath, true);
+  insertFileByRelativePath(relativePath: string): void {
+    const folder = this.getOrCreateFolderByRelativePath(relativePath);
 
     folder[this.filenameFormatter(path.basename(relativePath))] = path.join(
       this.rootPath,
@@ -38,30 +38,25 @@ export class FolderMap {
     );
   }
 
-  private getFolderByRelativePath(
-    relativePath: string,
-    insert = false
-  ): Folder {
+  private getOrCreateFolderByRelativePath(relativePath: string): Folder {
     if (path.dirname(relativePath) === "/") {
       return this._map;
     }
 
-    const folders = path.dirname(relativePath).split("/").slice(1);
+    const folders = path.dirname(relativePath).split(path.sep).slice(1);
 
+    // Traverse existing map based on folders from the input relative path
+    // Creates map entries in the map where they don't exist yet
     let currentFolder = this._map;
-    for (const key of folders) {
-      const formattedKey = this.dirnameFormatter(key);
+    for (const folderName of folders) {
+      const formattedFolderName = this.dirnameFormatter(folderName);
 
-      if (!currentFolder[formattedKey]) {
-        if (!insert) {
-          console.log(folders);
-          throw new Error(`Invalid path - ${relativePath}`);
-        } else {
-          currentFolder[formattedKey] = {};
-        }
+      if (!currentFolder[formattedFolderName]) {
+        // Create a map entry for this folder
+        currentFolder[formattedFolderName] = {};
       }
 
-      currentFolder = currentFolder[formattedKey] as Folder;
+      currentFolder = currentFolder[formattedFolderName] as Folder;
     }
 
     return currentFolder;

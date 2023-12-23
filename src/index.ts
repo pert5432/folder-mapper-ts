@@ -45,7 +45,7 @@ const mapFolder = async (
 
     for (const entry of dirContents) {
       if (entry.isFile()) {
-        map.insertByRelativePath(
+        map.insertFileByRelativePath(
           path.join(currentElement.relativePath, entry.name)
         );
       } else if (entry.isDirectory()) {
