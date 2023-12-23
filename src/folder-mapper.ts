@@ -1,7 +1,9 @@
+import { getDirContentsByAbsolutePath } from "./get-dir-contents";
 import {
   DirnameFormatter,
   FilenameFormatter,
   Folder,
+  FolderQueueElement,
   MapConfig,
 } from "./types";
 import path from "node:path";
@@ -12,7 +14,7 @@ const DEFAULT_FILENAME_FORMATTER: FilenameFormatter = (filename: string) =>
 const DEFAULT_DIRNAME_FORMATTER: DirnameFormatter = (dirname: string) =>
   dirname;
 
-export class FolderMap {
+export class FolderMapper {
   private _map: Folder = {};
   private rootPath: string;
 
@@ -29,7 +31,40 @@ export class FolderMap {
     return this._map;
   }
 
-  insertFileByRelativePath(relativePath: string): void {
+  async mapFolderByAbsolutePath(absolutePath: string): Promise<void> {
+    const folderQueue: FolderQueueElement[] = [
+      { relativePath: "/", name: path.dirname(absolutePath) },
+    ];
+
+    // Traverse folders in queue
+    let currentElement = folderQueue.pop();
+    while (currentElement) {
+      // Get contents of currently processed folder
+      const dirContents = await getDirContentsByAbsolutePath(
+        path.join(absolutePath, currentElement.relativePath)
+      );
+
+      for (const entry of dirContents) {
+        // Map files
+        if (entry.isFile()) {
+          this.mapFileByRelativePath(
+            path.join(currentElement.relativePath, entry.name)
+          );
+
+          // Add sub-folders into the queue
+        } else if (entry.isDirectory()) {
+          folderQueue.push({
+            name: entry.name,
+            relativePath: path.join(currentElement.relativePath, entry.name),
+          });
+        }
+      }
+
+      currentElement = folderQueue.pop();
+    }
+  }
+
+  private mapFileByRelativePath(relativePath: string): void {
     const folder = this.getOrCreateFolderByRelativePath(relativePath);
 
     folder[this.filenameFormatter(path.basename(relativePath))] = path.join(
