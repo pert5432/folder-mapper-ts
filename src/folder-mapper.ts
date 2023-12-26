@@ -1,19 +1,22 @@
 import { getDirContentsByAbsolutePath } from "./get-dir-contents";
 import {
-  DirnameFormatter,
+  FoldernameFormatter,
   FilenameFormatter,
   FolderMap,
   FolderQueueElement,
   FolderMapperConfig,
   FileOutputFormatter,
+  FileFilter,
+  FolderFilter,
 } from "./types";
 import path from "node:path";
 import * as fs from "fs";
 import {
-  DEFAULT_DIRNAME_FORMATTER,
+  DEFAULT_FOLDERNAME_FORMATTER,
   DEFAULT_FILENAME_FORMATTER,
   DEFAULT_FILE_OUTPUT_FORMATTER,
 } from "./default-formatters";
+import { DEFAULT_FILE_FILTER, DEFAULT_FOLDER_FILTER } from "./default-filters";
 
 export class FolderMapper {
   private _map: FolderMap = {};
@@ -21,23 +24,34 @@ export class FolderMapper {
   private filePathsRelativeTo: string;
 
   private filenameFormatter: FilenameFormatter;
-  private dirnameFormatter: DirnameFormatter;
+  private foldernameFormatter: FoldernameFormatter;
   private fileOutputFormatter: FileOutputFormatter;
+
+  private fileFilter: FileFilter;
+  private folderFilter: FolderFilter;
 
   constructor({
     path,
     filePathsRelativeTo,
+
     filenameFormatter,
-    dirnameFormatter,
+    foldernameFormatter,
     fileOutputFormatter,
+
+    fileFilter,
+    folderFilter,
   }: FolderMapperConfig) {
     this.rootPath = path;
     this.filePathsRelativeTo = filePathsRelativeTo ?? process.cwd();
 
     this.filenameFormatter = filenameFormatter ?? DEFAULT_FILENAME_FORMATTER;
-    this.dirnameFormatter = dirnameFormatter ?? DEFAULT_DIRNAME_FORMATTER;
+    this.foldernameFormatter =
+      foldernameFormatter ?? DEFAULT_FOLDERNAME_FORMATTER;
     this.fileOutputFormatter =
       fileOutputFormatter ?? DEFAULT_FILE_OUTPUT_FORMATTER;
+
+    this.fileFilter = fileFilter ?? DEFAULT_FILE_FILTER;
+    this.folderFilter = folderFilter ?? DEFAULT_FOLDER_FILTER;
   }
 
   get map() {
@@ -60,16 +74,19 @@ export class FolderMapper {
       for (const entry of dirContents) {
         // Map files
         if (entry.isFile()) {
-          this.mapFileByRelativePath(
-            path.join(currentFolder.relativePath, entry.name)
-          );
-
+          if (this.fileFilter(entry.name)) {
+            this.mapFileByRelativePath(
+              path.join(currentFolder.relativePath, entry.name)
+            );
+          }
           // Add sub-folders into the queue
         } else if (entry.isDirectory()) {
-          folderQueue.push({
-            name: entry.name,
-            relativePath: path.join(currentFolder.relativePath, entry.name),
-          });
+          if (this.folderFilter(entry.name)) {
+            folderQueue.push({
+              name: entry.name,
+              relativePath: path.join(currentFolder.relativePath, entry.name),
+            });
+          }
         }
       }
 
@@ -112,7 +129,7 @@ export class FolderMapper {
     // Creates map entries in the map where they don't exist yet
     let currentFolder = this._map;
     for (const folderName of folders) {
-      const formattedFolderName = this.dirnameFormatter(folderName);
+      const formattedFolderName = this.foldernameFormatter(folderName);
 
       if (!currentFolder[formattedFolderName]) {
         // Create a map entry for this folder

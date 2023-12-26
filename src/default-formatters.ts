@@ -1,5 +1,5 @@
 import {
-  DirnameFormatter,
+  FoldernameFormatter,
   FileOutputFormatter,
   FilenameFormatter,
   FolderMap,
@@ -9,8 +9,9 @@ export const DEFAULT_FILENAME_FORMATTER: FilenameFormatter = (
   filename: string
 ) => filename;
 
-export const DEFAULT_DIRNAME_FORMATTER: DirnameFormatter = (dirname: string) =>
-  dirname;
+export const DEFAULT_FOLDERNAME_FORMATTER: FoldernameFormatter = (
+  foldername: string
+) => foldername;
 
 export const DEFAULT_FILE_OUTPUT_FORMATTER: FileOutputFormatter = (
   map: FolderMap
