@@ -4,7 +4,7 @@ import {
   FilenameFormatter,
   Folder,
   FolderQueueElement,
-  MapConfig,
+  FolderMapperConfig,
 } from "./types";
 import path from "node:path";
 
@@ -21,7 +21,11 @@ export class FolderMapper {
   private filenameFormatter: FilenameFormatter;
   private dirnameFormatter: DirnameFormatter;
 
-  constructor({ path, filenameFormatter, dirnameFormatter }: MapConfig) {
+  constructor({
+    path,
+    filenameFormatter,
+    dirnameFormatter,
+  }: FolderMapperConfig) {
     this.rootPath = path;
     this.filenameFormatter = filenameFormatter ?? DEFAULT_FILENAME_FORMATTER;
     this.dirnameFormatter = dirnameFormatter ?? DEFAULT_DIRNAME_FORMATTER;
