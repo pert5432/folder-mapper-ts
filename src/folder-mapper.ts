@@ -2,7 +2,7 @@ import { getDirContentsByAbsolutePath } from "./get-dir-contents";
 import {
   DirnameFormatter,
   FilenameFormatter,
-  Folder,
+  FolderMap,
   FolderQueueElement,
   FolderMapperConfig,
   FileOutputFormatter,
@@ -16,11 +16,11 @@ const DEFAULT_FILENAME_FORMATTER: FilenameFormatter = (filename: string) =>
 const DEFAULT_DIRNAME_FORMATTER: DirnameFormatter = (dirname: string) =>
   dirname;
 
-const DEFAULT_FILE_OUTPUT_FORMATTER: FileOutputFormatter = (map: Folder) =>
+const DEFAULT_FILE_OUTPUT_FORMATTER: FileOutputFormatter = (map: FolderMap) =>
   `export const MAP = ${JSON.stringify(map)}`;
 
 export class FolderMapper {
-  private _map: Folder = {};
+  private _map: FolderMap = {};
   private rootPath: string;
   private filePathsRelativeTo: string;
 
@@ -78,7 +78,7 @@ export class FolderMapper {
 
   async writeMapToFile(
     path: string,
-    formatFn?: (map: Folder) => string
+    formatFn?: (map: FolderMap) => string
   ): Promise<void> {
     fs.writeFile(
       path,
@@ -103,7 +103,7 @@ export class FolderMapper {
     );
   }
 
-  private getOrCreateFolderByRelativePath(relativePath: string): Folder {
+  private getOrCreateFolderByRelativePath(relativePath: string): FolderMap {
     if (path.dirname(relativePath) === "/") {
       return this._map;
     }
@@ -121,7 +121,7 @@ export class FolderMapper {
         currentFolder[formattedFolderName] = {};
       }
 
-      currentFolder = currentFolder[formattedFolderName] as Folder;
+      currentFolder = currentFolder[formattedFolderName] as FolderMap;
     }
 
     return currentFolder;

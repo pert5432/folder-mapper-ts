@@ -1,6 +1,4 @@
-import * as fs from "fs";
-
-export type Folder = { [key: string]: string | Folder };
+export type FolderMap = { [key: string]: FolderMap | string };
 
 export type FolderQueueElement = { name: string; relativePath: string };
 
@@ -8,7 +6,7 @@ export type FilenameFormatter = (filename: string) => string;
 
 export type DirnameFormatter = (dirname: string) => string;
 
-export type FileOutputFormatter = (map: Folder) => string;
+export type FileOutputFormatter = (map: FolderMap) => string;
 
 export type FolderMapperConfig = {
   path: string;
