@@ -1,6 +1,6 @@
-import * as fs from "fs";
 import { ROOT_DIR } from "./root";
 import { FolderMapper } from "./folder-mapper";
+import { Folder } from "./types";
 
 const INPUT_PATH = `${ROOT_DIR}/assets`;
 const OUTPUT_PATH = `${ROOT_DIR}/map.ts`;
@@ -12,13 +12,9 @@ const main = async (): Promise<void> => {
 
   await map.mapFolderByAbsolutePath(INPUT_PATH);
 
-  fs.writeFile(
+  await map.writeMapToFile(
     OUTPUT_PATH,
-    `export const MAP = ${JSON.stringify(map.map)}`,
-    { encoding: "utf-8" },
-    (e) => {
-      if (e) throw e;
-    }
+    (map: Folder) => `export default ${JSON.stringify(map)}`
   );
 };
 

@@ -5,14 +5,19 @@ import {
   Folder,
   FolderQueueElement,
   FolderMapperConfig,
+  FileOutputFormatter,
 } from "./types";
 import path from "node:path";
+import * as fs from "fs";
 
 const DEFAULT_FILENAME_FORMATTER: FilenameFormatter = (filename: string) =>
   filename;
 
 const DEFAULT_DIRNAME_FORMATTER: DirnameFormatter = (dirname: string) =>
   dirname;
+
+const DEFAULT_FILE_OUTPUT_FORMATTER: FileOutputFormatter = (map: Folder) =>
+  `export const MAP = ${JSON.stringify(map)}`;
 
 export class FolderMapper {
   private _map: Folder = {};
@@ -70,6 +75,24 @@ export class FolderMapper {
       currentFolder = folderQueue.pop();
     }
   }
+
+  async writeMapToFile(
+    path: string,
+    formatFn?: (map: Folder) => string
+  ): Promise<void> {
+    fs.writeFile(
+      path,
+      (formatFn ?? DEFAULT_FILE_OUTPUT_FORMATTER)(this.map),
+      { encoding: "utf-8" },
+      (e) => {
+        if (e) throw e;
+      }
+    );
+  }
+
+  //
+  // Private
+  //
 
   private mapFileByRelativePath(relativePath: string): void {
     const folder = this.getOrCreateFolderByRelativePath(relativePath);

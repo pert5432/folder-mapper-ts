@@ -1,1 +1,1 @@
-export const MAP = {"jo AhA jeBetI":{"je toto normalne? jebeti?":"folder-map/assets/jo AhA jeBetI/je toto normalne? jebeti?"}}
+export default {"jo AhA jeBetI":{"je toto normalne? jebeti?":"assets/jo AhA jeBetI/je toto normalne? jebeti?"}}

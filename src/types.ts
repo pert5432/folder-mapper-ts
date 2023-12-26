@@ -8,6 +8,8 @@ export type FilenameFormatter = (filename: string) => string;
 
 export type DirnameFormatter = (dirname: string) => string;
 
+export type FileOutputFormatter = (map: Folder) => string;
+
 export type FolderMapperConfig = {
   path: string;
   filePathsRelativeTo?: string;
