@@ -8,10 +8,6 @@ const OUTPUT_PATH = `${ROOT_DIR}/map.ts`;
 const main = async (): Promise<void> => {
   const map = new FolderMapper({
     path: INPUT_PATH,
-    filenameFormatter: (filename: string) =>
-      filename.split(" ").join("_").toUpperCase(),
-    dirnameFormatter: (dirname: string) =>
-      dirname.split(" ").join("_").toUpperCase(),
   });
 
   await map.mapFolderByAbsolutePath(INPUT_PATH);

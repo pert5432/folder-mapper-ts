@@ -17,16 +17,19 @@ const DEFAULT_DIRNAME_FORMATTER: DirnameFormatter = (dirname: string) =>
 export class FolderMapper {
   private _map: Folder = {};
   private rootPath: string;
+  private filePathsRelativeTo: string;
 
   private filenameFormatter: FilenameFormatter;
   private dirnameFormatter: DirnameFormatter;
 
   constructor({
     path,
+    filePathsRelativeTo,
     filenameFormatter,
     dirnameFormatter,
   }: FolderMapperConfig) {
     this.rootPath = path;
+    this.filePathsRelativeTo = filePathsRelativeTo ?? process.cwd();
     this.filenameFormatter = filenameFormatter ?? DEFAULT_FILENAME_FORMATTER;
     this.dirnameFormatter = dirnameFormatter ?? DEFAULT_DIRNAME_FORMATTER;
   }
@@ -41,39 +44,39 @@ export class FolderMapper {
     ];
 
     // Traverse folders in queue
-    let currentElement = folderQueue.pop();
-    while (currentElement) {
+    let currentFolder = folderQueue.pop();
+    while (currentFolder) {
       // Get contents of currently processed folder
       const dirContents = await getDirContentsByAbsolutePath(
-        path.join(absolutePath, currentElement.relativePath)
+        path.join(absolutePath, currentFolder.relativePath)
       );
 
       for (const entry of dirContents) {
         // Map files
         if (entry.isFile()) {
           this.mapFileByRelativePath(
-            path.join(currentElement.relativePath, entry.name)
+            path.join(currentFolder.relativePath, entry.name)
           );
 
           // Add sub-folders into the queue
         } else if (entry.isDirectory()) {
           folderQueue.push({
             name: entry.name,
-            relativePath: path.join(currentElement.relativePath, entry.name),
+            relativePath: path.join(currentFolder.relativePath, entry.name),
           });
         }
       }
 
-      currentElement = folderQueue.pop();
+      currentFolder = folderQueue.pop();
     }
   }
 
   private mapFileByRelativePath(relativePath: string): void {
     const folder = this.getOrCreateFolderByRelativePath(relativePath);
 
-    folder[this.filenameFormatter(path.basename(relativePath))] = path.join(
-      this.rootPath,
-      relativePath
+    folder[this.filenameFormatter(path.basename(relativePath))] = path.relative(
+      this.filePathsRelativeTo,
+      path.join(this.rootPath, relativePath)
     );
   }
 

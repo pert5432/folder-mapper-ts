@@ -10,6 +10,7 @@ export type DirnameFormatter = (dirname: string) => string;
 
 export type FolderMapperConfig = {
   path: string;
+  filePathsRelativeTo?: string;
   filenameFormatter?: FilenameFormatter;
   dirnameFormatter?: DirnameFormatter;
 };
