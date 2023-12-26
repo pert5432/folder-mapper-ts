@@ -9,15 +9,11 @@ import {
 } from "./types";
 import path from "node:path";
 import * as fs from "fs";
-
-const DEFAULT_FILENAME_FORMATTER: FilenameFormatter = (filename: string) =>
-  filename;
-
-const DEFAULT_DIRNAME_FORMATTER: DirnameFormatter = (dirname: string) =>
-  dirname;
-
-const DEFAULT_FILE_OUTPUT_FORMATTER: FileOutputFormatter = (map: FolderMap) =>
-  `export const MAP = ${JSON.stringify(map)}`;
+import {
+  DEFAULT_DIRNAME_FORMATTER,
+  DEFAULT_FILENAME_FORMATTER,
+  DEFAULT_FILE_OUTPUT_FORMATTER,
+} from "./default-formatters";
 
 export class FolderMapper {
   private _map: FolderMap = {};
@@ -26,17 +22,22 @@ export class FolderMapper {
 
   private filenameFormatter: FilenameFormatter;
   private dirnameFormatter: DirnameFormatter;
+  private fileOutputFormatter: FileOutputFormatter;
 
   constructor({
     path,
     filePathsRelativeTo,
     filenameFormatter,
     dirnameFormatter,
+    fileOutputFormatter,
   }: FolderMapperConfig) {
     this.rootPath = path;
     this.filePathsRelativeTo = filePathsRelativeTo ?? process.cwd();
+
     this.filenameFormatter = filenameFormatter ?? DEFAULT_FILENAME_FORMATTER;
     this.dirnameFormatter = dirnameFormatter ?? DEFAULT_DIRNAME_FORMATTER;
+    this.fileOutputFormatter =
+      fileOutputFormatter ?? DEFAULT_FILE_OUTPUT_FORMATTER;
   }
 
   get map() {
@@ -76,13 +77,10 @@ export class FolderMapper {
     }
   }
 
-  async writeMapToFile(
-    path: string,
-    formatFn?: (map: FolderMap) => string
-  ): Promise<void> {
+  async writeMapToFile(path: string): Promise<void> {
     fs.writeFile(
       path,
-      (formatFn ?? DEFAULT_FILE_OUTPUT_FORMATTER)(this.map),
+      this.fileOutputFormatter(this.map),
       { encoding: "utf-8" },
       (e) => {
         if (e) throw e;

@@ -11,6 +11,8 @@ export type FileOutputFormatter = (map: FolderMap) => string;
 export type FolderMapperConfig = {
   path: string;
   filePathsRelativeTo?: string;
+
   filenameFormatter?: FilenameFormatter;
   dirnameFormatter?: DirnameFormatter;
+  fileOutputFormatter?: FileOutputFormatter;
 };
