@@ -1,19 +1,22 @@
-import { ROOT_DIR } from "./root";
 import { FolderMapper } from "./folder-mapper";
+import { FolderMap, FolderMapperConfig } from "./types";
 
-const INPUT_PATH = `${ROOT_DIR}/assets`;
-const OUTPUT_PATH = `${ROOT_DIR}/map.ts`;
+export const exportFolderMap = async (
+  config: FolderMapperConfig & { outputPath: string }
+): Promise<void> => {
+  const map = new FolderMapper(config);
 
-const main = async (): Promise<void> => {
-  const map = new FolderMapper({
-    path: INPUT_PATH,
-  });
+  await map.mapFolder();
 
-  await map.mapFolderByAbsolutePath(INPUT_PATH);
-
-  await map.writeMapToFile(OUTPUT_PATH);
+  await map.writeMapToFile();
 };
 
-main()
-  .then(() => console.log("okaaaa"))
-  .catch((e) => console.log(e));
+export const getMap = async (
+  config: FolderMapperConfig
+): Promise<FolderMap> => {
+  const map = new FolderMapper(config);
+
+  await map.mapFolder();
+
+  return map.map;
+};

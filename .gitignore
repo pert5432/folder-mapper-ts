@@ -83,3 +83,5 @@ test.env
 .DS_Store
 
 assets
+
+src/test.ts
