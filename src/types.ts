@@ -14,6 +14,7 @@ export type FolderFilter = (foldername: string) => boolean;
 
 export type FolderMapperConfig = {
   path: string;
+  outputPath?: string;
   filePathsRelativeTo?: string;
 
   filenameFormatter?: FilenameFormatter;

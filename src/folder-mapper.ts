@@ -20,7 +20,9 @@ import { DEFAULT_FILE_FILTER, DEFAULT_FOLDER_FILTER } from "./default-filters";
 
 export class FolderMapper {
   private _map: FolderMap = {};
+
   private rootPath: string;
+  private outputPath: string | undefined;
   private filePathsRelativeTo: string;
 
   private filenameFormatter: FilenameFormatter;
@@ -32,6 +34,7 @@ export class FolderMapper {
 
   constructor({
     path,
+    outputPath,
     filePathsRelativeTo,
 
     filenameFormatter,
@@ -42,6 +45,7 @@ export class FolderMapper {
     folderFilter,
   }: FolderMapperConfig) {
     this.rootPath = path;
+    this.outputPath = outputPath;
     this.filePathsRelativeTo = filePathsRelativeTo ?? process.cwd();
 
     this.filenameFormatter = filenameFormatter ?? DEFAULT_FILENAME_FORMATTER;
@@ -58,9 +62,9 @@ export class FolderMapper {
     return this._map;
   }
 
-  async mapFolderByAbsolutePath(absolutePath: string): Promise<void> {
+  async mapFolder(): Promise<void> {
     const folderQueue: FolderQueueElement[] = [
-      { relativePath: "/", name: path.dirname(absolutePath) },
+      { relativePath: "/", name: path.dirname(this.rootPath) },
     ];
 
     // Traverse folders in queue
@@ -68,7 +72,7 @@ export class FolderMapper {
     while (currentFolder) {
       // Get contents of currently processed folder
       const dirContents = await getDirContentsByAbsolutePath(
-        path.join(absolutePath, currentFolder.relativePath)
+        path.join(this.rootPath, currentFolder.relativePath)
       );
 
       for (const entry of dirContents) {
@@ -94,9 +98,15 @@ export class FolderMapper {
     }
   }
 
-  async writeMapToFile(path: string): Promise<void> {
+  async writeMapToFile(): Promise<void> {
+    if (!this.outputPath) {
+      throw new Error(
+        "Attempted to export map without providing an output path"
+      );
+    }
+
     fs.writeFile(
-      path,
+      this.outputPath,
       this.fileOutputFormatter(this.map),
       { encoding: "utf-8" },
       (e) => {
