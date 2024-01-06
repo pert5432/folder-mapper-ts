@@ -82,6 +82,10 @@ test.env
 # MAC OS
 .DS_Store
 
+# Testing
 assets
 
 src/test.ts
+
+# Build
+dist
