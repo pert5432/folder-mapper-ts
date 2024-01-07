@@ -1,6 +1,6 @@
 {
   "name": "folder-mapper-ts",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "author": "pert5432 <p3tr.kada@gmail.com>",
