@@ -12,6 +12,8 @@ If your project contains a folder of assets which you want to use dynamically yo
 
 # Example usage
 
+A repository with examples can be found [here](https://github.com/pert5432/folder-mapper-ts-examples)
+
 There are 2 functions exported, `exportFolderMap` which writes the generated object to a file and `getMap` which returns the generated object so you can do whatever you want with it.
 
 Both functions take a config object as an argument with the following options:
@@ -33,7 +35,7 @@ Both functions take a config object as an argument with the following options:
     // Function to format keys of the generated object (for ex. to make them all kebab-case)
     foldernameFormatter?: FoldernameFormatter;
 
-    // Function to format the output that gets written to a file
+    // Function to format the output that gets written to a file, default implementation can be found in src/default-formatters.ts
     fileOutputFormatter?: FileOutputFormatter;
 
     // Function to filter which files should get included in the map, return true to include a file
@@ -43,5 +45,3 @@ Both functions take a config object as an argument with the following options:
     folderFilter?: FolderFilter;
 }
 ```
-
-Examples repo under construction, please come back later :)
