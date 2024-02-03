@@ -25,6 +25,7 @@ export class FolderMapper {
   private outputPath: string | undefined;
   private filePathsRelativeTo: string;
   private leadingSlashFilePaths: boolean;
+  private exportedConstName: string;
 
   private filenameFormatter: FilenameFormatter;
   private foldernameFormatter: FoldernameFormatter;
@@ -38,6 +39,7 @@ export class FolderMapper {
     outputPath,
     filePathsRelativeTo,
     leadingSlashFilePaths,
+    exportedConstName,
 
     filenameFormatter,
     foldernameFormatter,
@@ -50,6 +52,7 @@ export class FolderMapper {
     this.outputPath = outputPath;
     this.filePathsRelativeTo = filePathsRelativeTo ?? process.cwd();
     this.leadingSlashFilePaths = leadingSlashFilePaths ?? false;
+    this.exportedConstName = exportedConstName ?? "MAP";
 
     this.filenameFormatter = filenameFormatter ?? DEFAULT_FILENAME_FORMATTER;
     this.foldernameFormatter =
@@ -110,7 +113,7 @@ export class FolderMapper {
 
     fs.writeFile(
       this.outputPath,
-      this.fileOutputFormatter(this.map),
+      this.fileOutputFormatter(this.exportedConstName, this.map),
       { encoding: "utf-8" },
       (e) => {
         if (e) throw e;

@@ -6,7 +6,7 @@ export type FilenameFormatter = (filename: string) => string;
 
 export type FoldernameFormatter = (foldername: string) => string;
 
-export type FileOutputFormatter = (map: FolderMap) => string;
+export type FileOutputFormatter = (constName: string, map: FolderMap) => string;
 
 export type FileFilter = (filename: string) => boolean;
 
@@ -21,16 +21,20 @@ export type FolderMapperConfig = {
   filePathsRelativeTo?: string;
   // Sometimes you need all the file paths to start with a slash (/folder/file vs folder/file)
   leadingSlashFilePaths?: boolean;
+  // The name of the const which is exported from the generated file (default is MAP)
+  // Note that providing values which are invalid TS/JS variable names will result in an unusable output ;)
+  exportedConstName?: string;
 
   // Function to format keys of the generated object (for ex. to make them all UPPERCASE)
   filenameFormatter?: FilenameFormatter;
   // Function to format keys of the generated object (for ex. to make them all kebab-case)
   foldernameFormatter?: FoldernameFormatter;
-  // Function to format the output that gets written to a file, default implementation can be found in src/default-formatters.ts
-  fileOutputFormatter?: FileOutputFormatter;
 
   // Function to filter which files should get included in the map, return true to include a file
   fileFilter?: FileFilter;
   // Function to filter which folders should get included in the map, return true to include a folder
   folderFilter?: FolderFilter;
+
+  // Function to format the output that gets written to a file, default implementation can be found in src/default-formatters.ts
+  fileOutputFormatter?: FileOutputFormatter;
 };

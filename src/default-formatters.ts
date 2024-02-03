@@ -14,5 +14,6 @@ export const DEFAULT_FOLDERNAME_FORMATTER: FoldernameFormatter = (
 ) => foldername;
 
 export const DEFAULT_FILE_OUTPUT_FORMATTER: FileOutputFormatter = (
+  constName: string,
   map: FolderMap
-) => `export const MAP = ${JSON.stringify(map)}`;
+) => `export const ${constName} = ${JSON.stringify(map)}`;
