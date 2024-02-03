@@ -24,6 +24,7 @@ export class FolderMapper {
   private rootPath: string;
   private outputPath: string | undefined;
   private filePathsRelativeTo: string;
+  private leadingSlashFilePaths: boolean;
 
   private filenameFormatter: FilenameFormatter;
   private foldernameFormatter: FoldernameFormatter;
@@ -36,6 +37,7 @@ export class FolderMapper {
     path,
     outputPath,
     filePathsRelativeTo,
+    leadingSlashFilePaths,
 
     filenameFormatter,
     foldernameFormatter,
@@ -47,6 +49,7 @@ export class FolderMapper {
     this.rootPath = path;
     this.outputPath = outputPath;
     this.filePathsRelativeTo = filePathsRelativeTo ?? process.cwd();
+    this.leadingSlashFilePaths = leadingSlashFilePaths ?? false;
 
     this.filenameFormatter = filenameFormatter ?? DEFAULT_FILENAME_FORMATTER;
     this.foldernameFormatter =
@@ -122,10 +125,15 @@ export class FolderMapper {
   private mapFileByRelativePath(relativePath: string): void {
     const folder = this.getOrCreateFolderByRelativePath(relativePath);
 
-    folder[this.filenameFormatter(path.basename(relativePath))] = path.relative(
+    const filePath = path.relative(
       this.filePathsRelativeTo,
       path.join(this.rootPath, relativePath)
     );
+
+    folder[this.filenameFormatter(path.basename(relativePath))] = this
+      .leadingSlashFilePaths
+      ? path.join("/", filePath)
+      : filePath;
   }
 
   private getOrCreateFolderByRelativePath(relativePath: string): FolderMap {

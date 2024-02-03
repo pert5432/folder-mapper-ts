@@ -19,6 +19,8 @@ export type FolderMapperConfig = {
   outputPath?: string;
   // Makes the output file paths be relative to this path, defaults to process.cwd
   filePathsRelativeTo?: string;
+  // Sometimes you need all the file paths to start with a slash (/folder/file vs folder/file)
+  leadingSlashFilePaths?: boolean;
 
   // Function to format keys of the generated object (for ex. to make them all UPPERCASE)
   filenameFormatter?: FilenameFormatter;
