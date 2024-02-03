@@ -1,11 +1,18 @@
 {
   "name": "folder-mapper-ts",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "author": "pert5432 <p3tr.kada@gmail.com>",
   "license": "MIT",
   "repository": "https://github.com/pert5432/folder-mapper-ts",
+  "keywords": [
+    "folder",
+    "map",
+    "typescript",
+    "assets",
+    "images"
+  ],
   "scripts": {
     "build": "tsc",
     "prepublish": "build"
