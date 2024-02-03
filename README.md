@@ -1,47 +1,60 @@
 # Folder Mapper
 
-Simple tool to generate a JS/TS object representation of a folder, its sub-folders and files in them.
-
-# What is this useful for?
-
-If your project contains a folder of assets which you want to use dynamically you will (most likely) need to work with paths to the individual assets. This library enables you to:
-
-- Work with an object representation of the folder instead of paths to the individual files, making use of your IDEs hinting.
-
-- Have the ability to simply re-generate the object when you add/remove files from your asset folders instead of having to change hardcoded paths in your code. This way you can also easily make sure you aren't trying to use some files which are not in your asset folders anymore.
+Super light-weight tool to generate a JS/TS object representation of a folder, its sub-folders and files in them. Using this tool you can fully leverage your IDEs hinting and make sure you aren't trying to use asset files that aren't in your codebase.
 
 # Example usage
 
-A repository with examples can be found [here](https://github.com/pert5432/folder-mapper-ts-examples)
+I highly recommend having a look at [the examples repository](https://github.com/pert5432/folder-mapper-ts-examples)
 
-There are 2 functions exported, `exportFolderMap` which writes the generated object to a file and `getMap` which returns the generated object so you can do whatever you want with it.
+Installation:
 
-Both functions take a config object as an argument with the following options:
+```bash
+yarn add folder-mapper-ts
+```
+
+To generate the map:
 
 ```typescript
-{
-    // Absolute path to the folder which you want to map
-    path: string;
+import { exportFolderMap } from "folder-mapper-ts";
 
-    // Absolute path to the file you want the generated map written to (required for exportFolderMap function)
-    outputPath?: string;
-
-    // Makes the output file paths be relative to this path, defaults to process.cwd
-    filePathsRelativeTo?: string;
-
-    // Function to format keys of the generated object (for ex. to make them all UPPERCASE)
-    filenameFormatter?: FilenameFormatter;
-
-    // Function to format keys of the generated object (for ex. to make them all kebab-case)
-    foldernameFormatter?: FoldernameFormatter;
-
-    // Function to format the output that gets written to a file, default implementation can be found in src/default-formatters.ts
-    fileOutputFormatter?: FileOutputFormatter;
-
-    // Function to filter which files should get included in the map, return true to include a file
-    fileFilter?: FileFilter;
-
-    // Function to filter which folders should get included in the map, return true to include a folder
-    folderFilter?: FolderFilter;
-}
+await exportFolderMap({
+  path: "/absolute/path/to/the/folder/you/want/to/map",
+  outputPath: "/absolute/path/to/the/file/where/you/want/the/map.ts",
+});
 ```
+
+And then when you want to use the generated paths:
+
+```typescript
+import { MAP } from "./path/to/map";
+
+// Render the image
+<Image src={MAP.assets.image_1} />;
+
+// Or
+
+// Read the file contents for further processing etc..
+const contents = fs.readFileSync(MAP.assets.image_1);
+```
+
+If you now delete the file `image_1.png` from your assets folder and re-generate the map your IDE will tell you that you are trying to use a not-existing field of the `MAP` object, `tsc` will refuse to compile the project etc... this will prevent you from shipping the now broken code to production.
+
+More configuration options can be found in the examples repo and by looking at the `FolderMapperConfig` type (this is the type of the config object passed to the `exportFolderMap` function).
+
+# Relative file paths
+
+If you want the file paths in the generated map to be relative to some particular folder you will have to pass the `filePathsRelativeTo` option in the config like so:
+
+```typescript
+import { exportFolderMap } from "folder-mapper-ts";
+
+await exportFolderMap({
+  path: "/absolute/path/to/the/folder/you/want/to/map",
+  outputPath: "/absolute/path/to/the/file/where/you/want/the/map.ts",
+  filePathsRelativeTo: "/absolute/path/to/which/file/paths/will/be/relative",
+});
+```
+
+If you don't pass this option it will default to `process.cwd()` which is the path from which the the script is launched (not the path where the script is stored).
+
+I recommend looking at [the examples repo](https://github.com/pert5432/folder-mapper-ts-examples) if you are facing issues.
